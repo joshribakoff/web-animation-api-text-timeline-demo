@@ -1,0 +1,286 @@
+<!--
+Copyright 2015 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,500,500italic" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.rawgit.com/web-animations/web-animations-js/2.0.0/web-animations.min.js"></script>
+  <script src="timeline.js"></script>
+  <style type="text/css">
+
+body {
+  font-family: "Roboto", Arial, Sans-Serif;
+}
+
+.holder {
+  position: relative;
+  display: inline-block;
+  margin: 12px;
+}
+
+.holder > span {
+  color: #333;
+  will-change: transform;
+  font-size: 24px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.flex {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+input[type="range"] {
+  min-width: 80%;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="flex" id="main">
+  <button id="start">Play/Pause</button>
+  <button id="start2">Play/Pause2</button>
+  <input type="range" min="0" max="10000" value="0" id="ranger" />
+  <input type="range" min="0" max="10000" value="0" id="ranger2" />
+</div>
+
+<script>
+
+var timeline = new AnimationUtilTimeline();
+var timeline2 = new AnimationUtilTimeline();
+timeline.playbackRate = 0;
+timeline2.playbackRate = 0;
+
+document.getElementById('start').addEventListener('click', function() {
+  if (timeline.playbackRate == 0) {
+    timeline.playbackRate = 3;
+  } else {
+    timeline.playbackRate = 0;
+  }
+});
+
+document.getElementById('start2').addEventListener('click', function() {
+  if (timeline2.playbackRate == 0) {
+    timeline2.playbackRate = 3;
+  } else {
+    timeline2.playbackRate = 0;
+  }
+});
+
+var rangerChange = function(ev) {
+  if (ev.type == 'mousemove' && ev.which == 0) {
+    return; // don't change unless mouse button is down
+  }
+  timeline.playbackRate = 0;
+  timeline.currentTime = +this.value;
+};
+var rangerChange2 = function(ev) {
+  if (ev.type == 'mousemove' && ev.which == 0) {
+    return; // don't change unless mouse button is down
+  }
+  timeline2.playbackRate = 0;
+  timeline2.currentTime = +this.value;
+};
+window.setInterval(function() {
+  if (timeline.playbackRate != 0) 
+    ranger.value = timeline.currentTime;
+  if (timeline2.playbackRate != 0) 
+    ranger2.value = timeline2.currentTime;
+  
+}, 50);
+ranger.addEventListener('click', rangerChange);
+ranger.addEventListener('change', rangerChange);
+ranger.addEventListener('mousemove', rangerChange);
+ranger2.addEventListener('click', rangerChange2);
+ranger2.addEventListener('change', rangerChange2);
+ranger2.addEventListener('mousemove', rangerChange2);
+
+/** 
+ * Creates a div containing text split into parts (each as a span), default
+ * by whitespace.
+ *
+ * @param {string} text to use
+ * @param {string=} opt_splitBy to split by
+ * @return {!HTMLDivElement}
+ */
+function createHolder(text, opt_splitBy) {
+  var splitBy = ''//opt_splitBy || /\s/;
+
+  var holder = document.createElement('div');
+  holder.className = 'holder';
+
+  text.split(splitBy).map(function(part) {
+    var node = document.createElement('span');
+    node.innerText = part + ' ';
+    holder.appendChild(node);
+    holder.appendChild(document.createTextNode(' '));
+  });
+
+  return holder;
+}
+
+/**
+ * Schedules an animation on the passed timeline at a delta. Accepts the same
+ * arguments as the schedule call on timeline.
+ */
+var schedule = (function(timeline) {
+  return function(delta, node, steps, timing) {
+    var scheduleAt = 0;
+    Array.prototype.slice.call(node.children).forEach((node) => {
+        scheduleAt += delta;
+        if (node == undefined) {
+        return;  // do nothing, hack to move scheduleAt
+        }
+        return timeline.schedule(scheduleAt, node, steps, timing);
+    })
+  }
+}(timeline));
+var schedule2 = (function(timeline) {
+  return function(delta, node, steps, timing) {
+    var scheduleAt = 0;
+    Array.prototype.slice.call(node.children).forEach((node) => {
+        scheduleAt += delta;
+        if (node == undefined) {
+        return;  // do nothing, hack to move scheduleAt
+        }
+        return timeline.schedule(scheduleAt, node, steps, timing);
+    })
+  }
+}(timeline2));
+
+function bounceIn(node) {
+  var fadeLeftSteps = [
+  {
+      "opacity": "0",
+      "transform": "translate3d(0, -3000px, 0)",
+      "offset": "0",
+      "easing": "cubic-bezier(0.215, 0.610, 0.355, 1.000)"
+  },
+  {
+      "opacity": "1",
+      "transform": "translate3d(0, 25px, 0)",
+      "offset": "0.6",
+      "easing": "cubic-bezier(0.215, 0.610, 0.355, 1.000)"
+  },
+  {
+      "transform": "translate3d(0, -10px, 0)",
+      "offset": "0.75",
+      "easing": "cubic-bezier(0.215, 0.610, 0.355, 1.000)"
+  },
+  {
+      "transform": "translate3d(0, 5px, 0)",
+      "offset": "0.9",
+      "easing": "cubic-bezier(0.215, 0.610, 0.355, 1.000)"
+  },
+  {
+      "opacity": "1",
+      "transform": "none",
+      "offset": "1",
+      "easing": "cubic-bezier(0.215, 0.610, 0.355, 1.000)"
+  }
+];
+  var fadeLeftTiming = {
+    duration: 2000,
+    easing: 'ease-in',
+    fill: 'forwards',
+  };
+  schedule2(100, node, fadeLeftSteps, fadeLeftTiming);
+}
+
+
+function jello(node) {
+  var keyframes = [
+            {
+                "transform": "none",
+                "offset": "0",
+                "easing": "ease"
+            },
+            {
+                "transform": "none",
+                "offset": "0.111",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(-12.5deg) skewY(-12.5deg)",
+                "offset": "0.222",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(6.25deg) skewY(6.25deg)",
+                "offset": "0.33299999999999996",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(-3.125deg) skewY(-3.125deg)",
+                "offset": "0.444",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(1.5625deg) skewY(1.5625deg)",
+                "offset": "0.555",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(-0.78125deg) skewY(-0.78125deg)",
+                "offset": "0.6659999999999999",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(0.390625deg) skewY(0.390625deg)",
+                "offset": "0.777",
+                "easing": "ease"
+            },
+            {
+                "transform": "skewX(-0.1953125deg) skewY(-0.1953125deg)",
+                "offset": "0.888",
+                "easing": "ease"
+            },
+            {
+                "transform": "none",
+                "offset": "1",
+                "easing": "ease"
+            }
+        ];
+  var timing = {duration: 5000, fill: 'backwards'};
+  schedule(100, node, keyframes, timing);
+}
+
+// Actual effect script below here.
+
+var lines = [
+  "Use Web Animations to make HTML5 rock!",
+  "Use Web Animations to make HTML5 rock!"
+];
+var h = lines.map(function(text) {
+  var el = createHolder(text); 
+  main.appendChild(el);
+  return el;
+});
+
+//flipIn(h[0]);
+bounceIn(h[0]);
+jello(h[1]);
+
+
+</script>
+
+</body>
+</html>
