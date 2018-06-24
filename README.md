@@ -8,6 +8,11 @@ In this demo I have used some polyfill code provided by Google & created a demo 
 
 I found that in the official web animations API polyfill github repository, it did not support 2 independant timelines on the same page, only a global timeline. This proof of concept implements independant timelines as promised by the spec. All credit goes to Google
 
+# Screenshot 
+
+![screenshot](https://raw.githubusercontent.com/joshribakoff/web-animation-api-text-timeline-demo/master/screenshot.png)
+
+
 # Links 
 - https://github.com/daneden/animate.css
 - https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API
