@@ -1,0 +1,17 @@
+{
+  "name": "web-animation-api-text-timeline-demo",
+  "version": "1.0.0",
+  "description": "A quick demo using the web animation API polyfilling the future timeline features not yet implemented in browsers",
+  "main": "index.html",
+  "repository": "git@github.com:joshribakoff/web-animation-api-text-timeline-demo.git",
+  "author": "Josh Ribakoff <josh.ribakoff@gmail.com>",
+  "license": "Apache 2",
+  "devDependencies": {
+    "gh-pages": "^1.2.0",
+    "http-server": "^0.11.1"
+  },
+  "scripts": {
+    "start": "http-server",
+    "deploy": "gh-pages -d ."
+  }
+}
